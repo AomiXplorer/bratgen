@@ -3,7 +3,9 @@
 Studio video lirik gaya **brat** yang berjalan sepenuhnya di browser. Import lagu, tempel lirik,
 jalankan auto-sync, koreksi timing, lalu export MP4. Audio tidak pernah dikirim ke server.
 
-- Production: https://bratgen.vercel.app
+- Production: https://bratgen-gamma.vercel.app (alias otomatis Vercel; `bratgen.vercel.app`
+  sudah dipakai akun lain)
+- Hasil uji penerimaan pada build produksi: [TESTING.md](./TESTING.md)
 - Stack: Vite + React + TypeScript, tanpa backend, tanpa API route, tanpa database.
 
 ## Kenapa local-first
