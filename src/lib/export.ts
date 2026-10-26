@@ -135,6 +135,18 @@ function makeCanvas(w: number, h: number): {
   return { canvas, ctx };
 }
 
+function makeDomCanvas(w: number, h: number): {
+  canvas: HTMLCanvasElement;
+  ctx: CanvasRenderingContext2D;
+} {
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Canvas 2D tidak tersedia.');
+  return { canvas, ctx };
+}
+
 const IDLE = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
 /**
@@ -281,13 +293,8 @@ export async function exportWebm(opts: ExportOptions): Promise<Blob> {
   );
   if (!mime) throw new Error('Browser ini tidak mendukung MediaRecorder WebM.');
 
-  const { canvas, ctx } = makeCanvas(w, h) as {
-    canvas: HTMLCanvasElement | OffscreenCanvas;
-    ctx: CanvasRenderingContext2D;
-  };
-  if (!(canvas instanceof HTMLCanvasElement)) {
-    throw new Error('WebM capture butuh canvas DOM.');
-  }
+  // MediaRecorder needs a DOM canvas: OffscreenCanvas has no captureStream.
+  const { canvas, ctx } = makeDomCanvas(w, h);
 
   const stream = canvas.captureStream(fps);
   const ac = new AudioContext({ sampleRate: audio.sampleRate });

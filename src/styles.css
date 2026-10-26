@@ -314,6 +314,19 @@ input[type='range'] {
   padding: 4px 7px;
   font-size: 11px;
   border-radius: 8px;
+  min-height: 32px;
+  min-width: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .mini {
+    min-height: 38px;
+    min-width: 36px;
+    font-size: 12px;
+  }
 }
 
 .badge {
