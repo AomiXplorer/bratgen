@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "source": "/((?!assets/.*|workers/.*|.*\\.(?:js|mjs|css|map|json|wasm|txt|svg|png|jpg|jpeg|webp|gif|ico|woff2?|ttf|mp4|webm|mp3|ogg|wav)$).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

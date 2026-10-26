@@ -1,0 +1,28 @@
+{
+  "name": "bratgen",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Bratgen — BRAT-style lyric video studio. Local-first: audio import, auto-sync, preview and MP4 export all run in the browser.",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --noEmit"
+  },
+  "dependencies": {
+    "mp4-muxer": "^5.2.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "typescript": "~5.9.3",
+    "vite": "^8.3.5"
+  },
+  "engines": {
+    "node": ">=20.19.0"
+  }
+}
