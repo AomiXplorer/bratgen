@@ -7,6 +7,9 @@ export interface Caps {
   webcodecs: boolean;
   avc: boolean;
   aac: boolean;
+  opus: boolean;
+  /** audio codec actually used inside MP4: 'aac' when available, otherwise 'opus' */
+  mp4Audio: 'aac' | 'opus' | null;
   mp4: boolean;
   webm: boolean;
   videoCodec: string | null;
@@ -45,6 +48,7 @@ export async function probeCapabilities(style: StyleConfig): Promise<Caps> {
   }
 
   let aac = false;
+  let opus = false;
   if (typeof window !== 'undefined' && 'AudioEncoder' in window) {
     try {
       const res = await AudioEncoder.isConfigSupported({
@@ -57,7 +61,23 @@ export async function probeCapabilities(style: StyleConfig): Promise<Caps> {
     } catch {
       aac = false;
     }
-    if (!aac) notes.push('Encoder AAC tidak tersedia, audio MP4 tidak bisa dibuat.');
+    try {
+      const resOpus = await AudioEncoder.isConfigSupported({
+        codec: 'opus',
+        sampleRate: 48000,
+        numberOfChannels: 2,
+        bitrate: 128_000,
+      });
+      opus = Boolean(resOpus.supported);
+    } catch {
+      opus = false;
+    }
+    if (!aac && opus) {
+      notes.push('AAC tidak tersedia, MP4 akan memakai audio Opus (tidak bisa diputar di Safari).');
+    }
+    if (!aac && !opus) {
+      notes.push('Tidak ada encoder audio yang tersedia, MP4 tidak bisa dibuat.');
+    }
   } else {
     notes.push('AudioEncoder tidak tersedia di browser ini.');
   }
@@ -70,11 +90,15 @@ export async function probeCapabilities(style: StyleConfig): Promise<Caps> {
     );
   if (!webm) notes.push('MediaRecorder WebM tidak tersedia.');
 
+  const mp4Audio: 'aac' | 'opus' | null = aac ? 'aac' : opus ? 'opus' : null;
+
   return {
     webcodecs: hasWebCodecs,
     avc: Boolean(videoCodec),
     aac,
-    mp4: Boolean(videoCodec) && aac,
+    opus,
+    mp4Audio,
+    mp4: Boolean(videoCodec) && mp4Audio !== null,
     webm,
     videoCodec,
     notes,
@@ -130,12 +154,16 @@ export async function exportMp4(opts: ExportOptions): Promise<Blob> {
   if (!caps.mp4 || !caps.videoCodec) {
     throw new Error('MP4 tidak didukung jalur encoder browser ini: ' + caps.notes.join(' '));
   }
+  if (caps.mp4Audio === 'opus') {
+    onProgress('memakai audio Opus (AAC tidak tersedia)', 0.03);
+  }
 
+  const audioCodec = caps.mp4Audio ?? 'aac';
   const target = new ArrayBufferTarget();
   const muxer = new Muxer({
     target,
     video: { codec: 'avc', width: w, height: h, frameRate: fps },
-    audio: { codec: 'aac', sampleRate: 48000, numberOfChannels: 2 },
+    audio: { codec: audioCodec, sampleRate: 48000, numberOfChannels: 2 },
     fastStart: 'in-memory',
   });
 
@@ -161,10 +189,10 @@ export async function exportMp4(opts: ExportOptions): Promise<Blob> {
     },
   });
   audioEncoder.configure({
-    codec: 'mp4a.40.2',
+    codec: audioCodec === 'aac' ? 'mp4a.40.2' : 'opus',
     sampleRate: 48000,
     numberOfChannels: 2,
-    bitrate: 192_000,
+    bitrate: audioCodec === 'aac' ? 192_000 : 128_000,
   });
 
   const { canvas, ctx } = makeCanvas(w, h);

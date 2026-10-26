@@ -88,12 +88,17 @@ Batasan yang jujur:
 
 ## Export MP4
 
-- Jalur utama: `VideoEncoder` (AVC) + `AudioEncoder` (AAC) + `mp4-muxer`, muxing `fastStart`.
+- Jalur utama: `VideoEncoder` (AVC) + `AudioEncoder` (AAC, atau Opus kalau AAC tidak ada) +
+  `mp4-muxer`, muxing `fastStart`.
   Frame dirender satu per satu ke `OffscreenCanvas`, langsung `close()`, dengan backpressure dari
   `encodeQueueSize`, sehingga memori tidak tumbuh mengikuti durasi lagu.
 - Kemampuan browser diperiksa dulu (`probeCapabilities`), bukan diasumsikan. Panel export menampilkan
   status MP4, codec AVC yang terpilih, AAC, dan WebM.
-- Kalau MP4 tidak didukung (misalnya encoder AAC tidak ada), tombol MP4 dinonaktifkan dan pesan
+- Audio MP4 memakai AAC bila encoder-nya ada. Chrome di Linux/Chromium sering tidak punya encoder
+  AAC; untuk kasus itu MP4 tetap dibuat dengan audio **Opus** (`mp4a` track diganti `Opus`), jadi
+  file masih MP4 valid dengan video dan audio. Konsekuensinya Safari tidak bisa memutar Opus dalam
+  MP4, dan itu ditampilkan sebagai catatan di panel export.
+- Kalau tidak ada encoder video maupun audio sama sekali, tombol MP4 dinonaktifkan dan pesan
   penyebabnya ditampilkan. Jalur yang berfungsi tetap ditawarkan (WebM), file tidak pernah hanya
   diganti ekstensinya.
 - WebM memakai `MediaRecorder` dan merekam realtime, jadi butuh waktu selama durasi lagu.

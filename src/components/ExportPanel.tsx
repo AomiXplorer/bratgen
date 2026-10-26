@@ -95,7 +95,9 @@ export default function ExportPanel({
               MP4 {caps.mp4 ? 'tersedia' : 'tidak tersedia'}
             </span>
             <span className="badge">{caps.videoCodec ?? 'no AVC'}</span>
-            <span className={`badge ${caps.aac ? 'ok' : 'warn'}`}>AAC {caps.aac ? 'ok' : 'no'}</span>
+            <span className={`badge ${caps.aac ? 'ok' : 'warn'}`}>
+              audio {caps.mp4Audio ?? 'none'}
+            </span>
             <span className={`badge ${caps.webm ? 'ok' : 'warn'}`}>WebM {caps.webm ? 'ok' : 'no'}</span>
           </>
         ) : (
